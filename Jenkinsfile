@@ -1,5 +1,10 @@
- pipeline {
+pipeline {
   agent any
+   parameters {
+        string(name: 'environment', defaultValue: 'default', description: 'Workspace/environment file to use for deployment')
+        string(name: 'version', defaultValue: '', description: 'Version variable to pass to Terraform')
+        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+    }
   options {
     skipDefaultCheckout(true)
   }
@@ -16,22 +21,32 @@
     }
     stage('terraform plan') {
       steps {
-        sh './terraformw init'
-        sh './terraformw plan -input=false -out tfplan -no-color'
-        sh './terraformw show -no-color tfplan > tfplan.txt'
-        sh 'cat tfplan.txt'
+        script {
+               currentBuild.displayName = params.version
+            }
+            sh './terraformw init -input=false'
+            sh './terraformw workspace select ${environment}'
+            sh "./terraformw plan -input=false -out tfplan -var 'version=${params.version}' --var-file=environments/${params.environment}.tfvars"
+            sh './terraformw show -no-color tfplan > tfplan.txt'
       }
     }
     stage('approval') {
-        steps {
-          script {
-          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+        when {
+          not {
+           equals expected: true, actual: params.autoApprove
         }
     }
-}
-    stage('terraform') {
       steps {
-        sh './terraformw apply -no-color'
+                script {
+                    def plan = readFile 'tfplan.txt'
+                    input message: "Do you want to apply the plan?",
+                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                }
+         }
+}
+stage('terraform') {
+      steps {
+        sh './terraformw apply -input=false tfplan"'
       }
     }
   }
