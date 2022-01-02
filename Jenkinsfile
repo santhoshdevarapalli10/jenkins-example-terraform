@@ -17,7 +17,7 @@ pipeline {
     stage('approval') {
         steps {
           script {
-          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+          def userInput = input(id: 'yes', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'yes'] ])
         }
     }
 }
