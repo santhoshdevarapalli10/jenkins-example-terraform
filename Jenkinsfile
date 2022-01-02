@@ -14,6 +14,13 @@ pipeline {
         checkout scm
       }
     }
+    stage('approval') {
+        steps {
+          script {
+          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+        }
+    }
+}
     stage('terraform') {
       steps {
         sh './terraformw apply -no-color'
