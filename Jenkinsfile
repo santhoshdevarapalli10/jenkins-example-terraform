@@ -23,7 +23,7 @@ pipeline {
 }
     stage('terraform') {
       steps {
-        sh './terraformw apply -no-color'
+        sh './terraformw apply -input=false -no-color'
       }
     }
   }
