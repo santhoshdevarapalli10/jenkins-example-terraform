@@ -1,10 +1,5 @@
-pipeline {
+ pipeline {
   agent any
-   parameters {
-        string(name: 'environment', defaultValue: 'default', description: 'Workspace/environment file to use for deployment')
-        string(name: 'version', defaultValue: '', description: 'Version variable to pass to Terraform')
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-    }
   options {
     skipDefaultCheckout(true)
   }
@@ -21,32 +16,19 @@ pipeline {
     }
     stage('terraform plan') {
       steps {
-        script {
-               currentBuild.displayName = params.version
-            }
-            sh './terraformw init -input=false'
-            sh './terraformw workspace select ${environment}'
-            sh "./terraformw plan -input=false -out tfplan -var 'version=${params.version}' --var-file=environments/${params.environment}.tfvars"
-            sh './terraformw show -no-color tfplan > tfplan.txt
+        sh './terraformw plan -input=false -out tfplan -no-color'
       }
     }
     stage('approval') {
-        when {
-          not {
-           equals expected: true, actual: params.autoApprove
+        steps {
+          script {
+          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
         }
     }
-      steps {
-                script {
-                    def plan = readFile 'tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-                }
-         }
 }
     stage('terraform') {
       steps {
-        sh './terraformw apply -input=false tfplan"'
+        sh './terraformw apply -no-color'
       }
     }
   }
