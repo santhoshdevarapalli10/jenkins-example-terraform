@@ -26,7 +26,7 @@ pipeline {
             }
             sh './terraformw init -input=false'
             sh './terraformw workspace select ${environment}'
-            sh "./terraformw plan -input=false -out tfplan -var 'version=${params.version}' --var-file=environments/${params.environment}.tfvars"
+            sh "./terraformw plan -input=false -out tfplan -var 'version=${params.version}'"
             sh './terraformw show -no-color tfplan > tfplan.txt'
       }
     }
