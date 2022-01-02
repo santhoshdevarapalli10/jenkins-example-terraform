@@ -14,6 +14,11 @@ pipeline {
         checkout scm
       }
     }
+    stage('terraform plan') {
+      steps {
+        sh './terraformw plan'
+      }
+    }
     stage('approval') {
         steps {
           script {
