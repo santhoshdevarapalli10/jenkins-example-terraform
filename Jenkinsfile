@@ -17,6 +17,7 @@
     stage('terraform plan') {
       steps {
         sh './terraformw plan -input=false -out tfplan -no-color'
+        sh './terraformw show -no-color tfplan'
       }
     }
     stage('approval') {
