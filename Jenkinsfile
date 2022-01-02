@@ -16,7 +16,7 @@ pipeline {
     }
     stage('terraform plan') {
       steps {
-        sh './terraformw plan'
+        sh './terraformw plan -no-color'
       }
     }
     stage('approval') {
