@@ -16,8 +16,10 @@
     }
     stage('terraform plan') {
       steps {
+        sh './terraformw init'
         sh './terraformw plan -input=false -out tfplan -no-color'
-        sh './terraformw show -no-color tfplan'
+        sh './terraformw show -no-color tfplan > tfplan.txt'
+        sh 'cat tfplan.txt'
       }
     }
     stage('approval') {
