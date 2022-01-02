@@ -29,7 +29,7 @@
 }
     stage('terraform apply') {
       steps {
-        sh './terraformw apply -no-color'
+        sh './terraformw apply -auto-approve -no-color'
       }
     }
   }
